@@ -17,8 +17,8 @@
 #include <asm/pgtable.h>
 #include <asm/uaccess.h>
 
-MODULE_AUTHOR("Manuel Galván");
-MODULE_DESCRIPTION("201404034");
+MODULE_AUTHOR("JuanJose");
+MODULE_DESCRIPTION("201404412");
 MODULE_LICENSE("GPL");
 
 struct sysinfo i;
@@ -35,7 +35,7 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 si_meminfo(&i);
 for (lru = LRU_BASE; lru < NR_LRU_LISTS; lru++)
 pages[lru] = global_page_state(NR_LRU_BASE + lru);
-seq_printf(m,"Total: %8luKb\nLibre: %8luKb\nPorcentaje Utilizado: %lu% \n",
+seq_printf(m,"{\"total\": %8lu, \"libre\": %8lu, \"utilizado\": %lu%}\n",
 		K(i.totalram),
 		K(i.freeram),
 		( K(i.totalram) - K(i.freeram) ) * 100 / K(i.totalram));
