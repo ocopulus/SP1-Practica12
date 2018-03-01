@@ -2,6 +2,7 @@
 #include <linux/fs.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>
+#include <linux/kernel.h>
 #include <linux/kernel_stat.h>
 #include <linux/proc_fs.h>
 #include <linux/sched.h>
@@ -203,6 +204,7 @@ static int __init proc_stat_init(void)
 
 static void __exit final(void) //Salida de modulo
 {   
+	printk(KERN_INFO "201404412\n");
     printk(KERN_INFO "Sistemas Operativos 1\n");
 }
 
