@@ -200,4 +200,12 @@ static int __init proc_stat_init(void)
 	proc_create("cpu_201404412", 0, NULL, &proc_stat_operations);
 	return 0;
 }
+
+static void __exit final(void) //Salida de modulo
+{   
+    printk(KERN_INFO "Sistemas Operativos 1\n");
+}
+
+
 fs_initcall(proc_stat_init);
+module_exit(final);
