@@ -180,6 +180,11 @@ static int show_stat(struct seq_file *p, void *v)
 	return 0;
 }
 
+static void __exit final(void) //Salida de modulo
+{   
+    printk(KERN_INFO "Sistemas Operativos 1\n");
+}
+
 static int stat_open(struct inode *inode, struct file *file)
 {
 	size_t size = 1024 + 128 * num_online_cpus();
@@ -198,14 +203,9 @@ static const struct file_operations proc_stat_operations = {
 
 static int __init proc_stat_init(void)
 {
+	printk(KERN_INFO "201404412\n");
 	proc_create("cpu_201404412", 0, NULL, &proc_stat_operations);
 	return 0;
-}
-
-static void __exit final(void) //Salida de modulo
-{   
-	printk(KERN_INFO "201404412\n");
-    printk(KERN_INFO "Sistemas Operativos 1\n");
 }
 
 
