@@ -209,5 +209,5 @@ static int __init proc_stat_init(void)
 }
 
 
-fs_initcall(proc_stat_init);
-module_exit(final);
+//fs_initcall(proc_stat_init);
+//module_exit(final);
