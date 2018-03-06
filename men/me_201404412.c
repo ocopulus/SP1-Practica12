@@ -36,9 +36,9 @@ si_meminfo(&i);
 for (lru = LRU_BASE; lru < NR_LRU_LISTS; lru++)
 pages[lru] = global_page_state(NR_LRU_BASE + lru);
 seq_printf(m,"{\"total\": %8lu, \"libre\": %8lu, \"utilizado\": %lu}\n",
-		K(i.totalram),
-		K(i.freeram),
-		( K(i.totalram) - K(i.freeram) ) * 100 / K(i.totalram));
+		i.totalram*4,
+		i.freeram*4,
+		((i.freeram*100)/i.totalram));
 #undef K
 return 0;
 
