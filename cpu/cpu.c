@@ -81,6 +81,13 @@
 
     static int meminfo_proc_show(struct seq_file *m, void *v)
     {
+	struct sysinfo i;
+	int lru;
+	unsigned long porcentaje = 0;
+	/*
+	 * display in kilobytes.
+	 */
+	si_meminfo(&i);
 	/*
 	 * Tagged format, for easy grepping and expansion.
 	 */
@@ -120,17 +127,29 @@
 		
 	}
 tiempo = user+nice+system+idle+iowait+irq+softirq+steal+guest+guest_nice;
-		seq_printf(m, "{\"tiempocpu\":");
-		seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(tiempo));
-		seq_printf(m, ",\"idle\":");
-		seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(idle));
-		seq_printf(m, "}\n");
+
+	porcentaje = (i.freeram * 100)/i.totalram;
+	seq_printf(m,
+		"\n{\"MEMP\":%8lu,"
+		"\"MEMF\":%8lu,"
+		"\"MEMT\":%8lu,",
+		porcentaje,
+		i.freeram*4, 
+		i.totalram*4
+		);
+	seq_printf(m, "\"tiempocpu\":");
+	seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(tiempo));
+	seq_printf(m, ",\"idle\":");
+	seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(idle));
+	seq_printf(m, "}\n");
+
+	
         return 0;
     }
 
     static void __exit final(void) //Salida de modulo
     {   
-        printk(KERN_INFO "Sistemas OPerativos 1\n");
+        printk(KERN_INFO "Cleaning Up.\n");
     }
 
     static int meminfo_proc_open(struct inode *inode, struct file *file)
@@ -147,7 +166,7 @@ tiempo = user+nice+system+idle+iowait+irq+softirq+steal+guest+guest_nice;
 
     static int __init inicio(void) //Escribe archivo en /proc
     {
-        proc_create("cpu_201404412", 0, NULL, &meminfo_proc_fops);
+        proc_create("memorias_info", 0, NULL, &meminfo_proc_fops);
         return 0;
     }
 
@@ -155,7 +174,7 @@ tiempo = user+nice+system+idle+iowait+irq+softirq+steal+guest+guest_nice;
     module_init(inicio);
     module_exit(final);
 
-    MODULE_AUTHOR("JuanJose");
-    MODULE_DESCRIPTION("201404412");
+    MODULE_AUTHOR("Brayan Flores");
+    MODULE_DESCRIPTION("201403564");
     MODULE_LICENSE("GPL");
 
