@@ -37,7 +37,7 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 				aux = 'T';
 				break;
 		}
-        seq_printf(m,"{\"nombre\": %s, \"pid\": %d, \"estado\": %c}\n", task->comm, task->pid, aux);
+        seq_printf(m,"{\"nombre\": \"%s\", \"pid\": %d, \"estado\": \"%c\"}\n", task->comm, task->pid, aux);
 
         list_for_each(list,&task->children) {
             task_child=list_entry(list,struct task_struct,sibling);
@@ -58,7 +58,7 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
 					aux = 'T';
 					break;
 			}
-            seq_printf(m,"{\"nombre\": %s, \"pid\": %d, \"estado\": %c}\n", task_child->comm, task_child->pid, aux);
+            seq_printf(m,"{\"nombre\": \"%s\", \"pid\": %d, \"estado\": \"%c\"}\n", task_child->comm, task_child->pid, aux);
         }
     }
     return 0;
