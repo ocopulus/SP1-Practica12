@@ -82,61 +82,69 @@
     static int meminfo_proc_show(struct seq_file *m, void *v)
     {
 	struct sysinfo i;
-	int lru;
 	unsigned long porcentaje = 0;
-	/*
-	 * display in kilobytes.
-	 */
 	si_meminfo(&i);
-	/*
-	 * Tagged format, for easy grepping and expansion.
-	 */
-	/***********************************************/
-	/*			CPU			*/
-	/***********************************************/
-	int x;
+	int x = 0;
 	u64 user, nice, system, idle, iowait, irq, softirq, steal;
 	u64 guest, guest_nice;
 	u64 sum = 0;
-	u64 sum_softirq = 0;
-
 	u64 tiempo = 0;
-	u64 tiempouso = 0;
-	u64 uso = 0;
-
-	int64_t totalcpupercentage = 0;
-	float pruebas;
-
-	unsigned int per_softirq_sums[NR_SOFTIRQS] = {0};
+	u64 Total_CPU_time_since_boot  = 0;
+	u64 Total_CPU_Idle_time_since_boot = 0;	
+	u64 Total_CPU_usage_time_since_boot = 0; 
+	unsigned long Total_CPU_percentage = 0;
 	struct timespec64 boottime;
 
 	user = nice = system = idle = iowait =
 		irq = softirq = steal = 0;
 	guest = guest_nice = 0;
 	getboottime(&boottime);
+	int cpuCount = 0;
+	//seq_printf(m,"{");
 	for_each_possible_cpu(x) {
-		user += kcpustat_cpu(x).cpustat[CPUTIME_USER];
-		nice += kcpustat_cpu(x).cpustat[CPUTIME_NICE];
-		system += kcpustat_cpu(x).cpustat[CPUTIME_SYSTEM];
-		idle += get_idle_time(x);
-		iowait += get_iowait_time(x);
-		irq += kcpustat_cpu(x).cpustat[CPUTIME_IRQ];
-		softirq += kcpustat_cpu(x).cpustat[CPUTIME_SOFTIRQ];
-		steal += kcpustat_cpu(x).cpustat[CPUTIME_STEAL];
-		guest += kcpustat_cpu(x).cpustat[CPUTIME_GUEST];
-		guest_nice += kcpustat_cpu(x).cpustat[CPUTIME_GUEST_NICE];
+		cpuCount++;
+		user += kcpustat_cpu(x).cpustat[CPUTIME_USER];//normal processes executing in user mode
+		nice += kcpustat_cpu(x).cpustat[CPUTIME_NICE];//niced processes executing in user mode
+		system += kcpustat_cpu(x).cpustat[CPUTIME_SYSTEM];//processes executing in kernel mode
+		idle += get_idle_time(x);// twiddling thumbs
+		iowait += get_iowait_time(x);//waiting for I/O to complete
+		irq += kcpustat_cpu(x).cpustat[CPUTIME_IRQ];//servicing interrupts
+		softirq += kcpustat_cpu(x).cpustat[CPUTIME_SOFTIRQ];//servicing softirqs
+		steal += kcpustat_cpu(x).cpustat[CPUTIME_STEAL];//involuntary wait
+		guest += kcpustat_cpu(x).cpustat[CPUTIME_GUEST];//running a normal guest
+		guest_nice += kcpustat_cpu(x).cpustat[CPUTIME_GUEST_NICE];//running a niced guest
 		sum += kstat_cpu_irqs_sum(x);
-		
+		Total_CPU_time_since_boot = user + nice + system + idle + iowait + irq + softirq + steal ;
+		Total_CPU_Idle_time_since_boot = idle + iowait;
+		Total_CPU_usage_time_since_boot =  Total_CPU_time_since_boot - Total_CPU_Idle_time_since_boot;
+		Total_CPU_percentage = Total_CPU_usage_time_since_boot * 100 / Total_CPU_time_since_boot   ;
+tiempo = Total_CPU_time_since_boot + guest + guest_nice;
+		//seq_printf(m, "\"cpu%i\":",cpuCount);
+		seq_printf(m, "{");	
+		seq_printf(m, "\"tiempo\":");
+		seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(tiempo));
+		seq_printf(m, ",\"idle\":");
+		seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(idle));
+		seq_printf(m, ",\"uso\":");
+		seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(Total_CPU_usage_time_since_boot));
+		seq_printf(m, ",\"sincronizacion\":");
+		seq_put_decimal_ull(m, ' ', cputime64_to_clock_t(Total_CPU_usage_time_since_boot));
+		seq_printf(m,",\"porcentaje\":%8lu",Total_CPU_percentage);
+		seq_printf(m, "}\n");	
 	}
-tiempo = user+nice+system+idle+iowait+irq+softirq+steal;
-tiempouso = user+nice+system+irq+softirq+steal;
-uso = (tiempouso*100)/tiempo;
 
-	seq_printf(m, "{\"CpuUsado\":\"%8lu\",", tiempouso);
-	seq_printf(m, "\"PorcentajeCpuUsado\":\"%8lu\"", uso);
-	seq_printf(m, "}");
-
-	
+		/*porcentaje = (i.freeram * 100)/i.totalram;
+		seq_printf(m, "\"ram\":{",cpuCount);		
+		seq_printf(m,
+		"\"porcentaje\":%8lu,"
+		"\"libre\":%8lu,"
+		"\"total\":%8lu",
+		porcentaje,
+		i.freeram * 4, 
+		i.totalram * 4
+		);
+		seq_printf(m, "}\n");
+		seq_printf(m, "}\n");*/	
         return 0;
     }
 
@@ -167,7 +175,7 @@ uso = (tiempouso*100)/tiempo;
     module_init(inicio);
     module_exit(final);
 
-    MODULE_AUTHOR("Juan Jose Lemus Vasquez");
+    MODULE_AUTHOR("juan jose lemus vasquez");
     MODULE_DESCRIPTION("201404412");
     MODULE_LICENSE("GPL");
 

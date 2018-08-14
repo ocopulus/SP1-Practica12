@@ -10,7 +10,7 @@ MODULE_AUTHOR("JuanJose");
 MODULE_DESCRIPTION("201404412");
 MODULE_LICENSE("GPL");
 
-char aux = 'X';
+char *aux;
 
 static int meminfo_proc_show(struct seq_file *m, void *v)
 {
@@ -22,44 +22,50 @@ static int meminfo_proc_show(struct seq_file *m, void *v)
         
 		switch(task->state){
 			case 0:
-				aux = 'R';
+				aux = "Ejecucion";
 				break;
 			case 1:
-				aux = 'S';
+				aux = "Listo";
 				break;
 			case 2:
-				aux = 'D';
+				aux = "Dormido";
 				break;
 			case 4:
-				aux = 'Z';
+				aux = "Zombie";
 				break;
 			case 8:
-				aux = 'T';
+				aux = "Detenido";
+				break;
+			case 32:
+				aux = "Espera Exclusiva";
 				break;
 		}
-        seq_printf(m,"{\"nombre\": \"%s\", \"pid\": %d, \"estado\": \"%c\"}\n", task->comm, task->pid, aux);
+        seq_printf(m,"{\"nombre\": \"%s\", \"pid\": %d, \"estado\": \"%s\", \"usuario\":\"%d\", \"cpu\":\"%d\", \"ram\":\"%llu\"}\n", task->comm, task->pid, aux, task->cred->uid, task->cpuset_mem_spread_rotor, task->acct_vm_mem1);
 
-        list_for_each(list,&task->children) {
+        /*list_for_each(list,&task->children) {
             task_child=list_entry(list,struct task_struct,sibling);
              switch(task_child->state){
 				case 0:
-					aux = 'R';
+					aux = "Ejecucion";
 					break;
 				case 1:
-					aux = 'S';
+					aux = "Listo";
 					break;
 				case 2:
-					aux = 'D';
+					aux = "Dormido";
 					break;
 				case 4:
-					aux = 'Z';
+					aux = "Zombie";
 					break;
 				case 8:
-					aux = 'T';
+					aux = "Detenido";
 					break;
+				case 32:
+				aux = "Espera Exclusiva";
+				break;
 			}
-            seq_printf(m,"{\"nombre\": \"%s\", \"pid\": %d, \"estado\": \"%c\"}\n", task_child->comm, task_child->pid, aux);
-        }
+            seq_printf(m,"{\"nombre\": \"%s\", \"pid\": %d, \"estado\": \"%c\", \"usuario\":\"%d\", \"cpu\":\"%d\", \"ram\":\"%llu\"}\n", task_child->comm, task_child->pid, aux, task->cred->uid, task->cpuset_mem_spread_rotor, task->acct_vm_mem1);
+        }*/
     }
     return 0;
 }
